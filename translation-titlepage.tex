@@ -1,0 +1,45 @@
+\documentclass{ctexart}
+\setmainfont{Times New Roman}
+\usepackage[a4paper, margin=2.5cm, left=3cm]{geometry}
+
+\usepackage[normalem]{xeCJKfntef}
+\usepackage{tabularx}
+\usepackage{pdfpages}
+\makeatletter
+
+\title{基于深度学习的高效半色调处理技术研究}
+
+\begin{document}
+
+\begin{titlepage}
+    \zihao{-2}\bfseries\centering
+
+    {\zihao{-1} \ziju{0.5} 外文翻译}
+
+    \vfill
+
+    毕业设计题目：\parbox[t]{\textwidth-7em}{\uline{\@title}}
+
+    \vfill
+
+    \begin{tabularx}{\textwidth}{lX}
+        原文1： & \uline{4-Row Serpentine Tone Dependent Fast Error Diffusion}\\
+        译文1： & \uline{四行蛇形色调自适应快速误差扩散算法}\\
+    \end{tabularx}
+
+    \vfill
+
+    \begin{tabularx}{\textwidth}{lX}
+        原文2： & \uline{Parallel implementation of an error diffusion halftoning algorithm with a general purpose graphics processing unit}\\
+        译文2： & \uline{基于通用图形处理器的误差扩散半色调算法并行实现}\\
+    \end{tabularx}
+
+    \vfill
+\end{titlepage}
+
+\includepdf[pages=-]{build/original1.pdf}
+\includepdf[pages=-]{build/translation1.pdf}
+\includepdf[pages=-]{build/original2.pdf}
+\includepdf[pages=-]{build/translation2.pdf}
+
+\end{document}     

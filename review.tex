@@ -1,0 +1,98 @@
+\documentclass[review]{zstucs-graduation-project}
+
+\usepackage{graphicx}
+\usepackage{minted}
+\setminted{breaklines}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\crefname{figure}{\figurename}{\figurename}
+\crefrangelabelformat{figure}{#3#1#4 -- #5#2#6}
+\makeatletter
+
+\title{基于深度学习的高效半色调处理技术研究}
+\author{邵嘉昊\\（计算机科学与技术22（1）班 \quad 2022337621220）}
+\addbibresource{sample.bib}
+
+\begin{document}
+
+\maketitle
+
+\section{引言}
+    半色调处理技术是将连续调图像转换为像素仅含黑白二色的半色调图像的关键技术，满足打印机等成像设备的离散性要求，
+在印刷、显示等领域有着重要应用。自印刷术发明以来，如何在纸张等载体上更好地呈现文字、图像等信息，一直是印刷业的研究重点。
+随着数字计算机的广泛应用，数字半色调处理技术已成为打印图像处理中不可或缺的环节。\cite{LAU2008Modern}
+    
+    传统半色调处理方法在计算效率和图像质量之间难以实现良好均衡，而深度学习技术的崛起为解决这一问题提供了新的思路。\cite{KRIZHEVSKY2012ImageNet}
+基于深度神经网络的数据驱动计算模式在图像处理领域取得显著进步，将其应用于半色调处理有望大幅提升处理效率和图像质量。\cite{DONG2016Image}
+然而，半色调的离散特性、现有神经网络模型的适配性不足以及大尺寸图像处理带来的访存问题等，给深度学习在该领域的应用带来了挑战。
+本文旨在梳理半色调处理技术的研究现状，重点分析基于深度学习的相关方法，为后续研究提供参考。
+
+\section{传统的半色调处理方法}
+    传统半色调处理技术根据计算时处理像素的方式，主要分为点过程、邻域过程和迭代过程三类，其计算复杂度逐步递增。\cite{LAU2008Modern, 周研2011数字半色调处理的并行误差扩散算法研究}
+
+\subsection{点过程类方法}
+    点过程的典型代表是有序抖动法（OrderedDithering）\cite{BAYER1973An, SULLIVAN1991Design, ULICHNEY1993Void, ALLEBACH1996FM, GARATEGUY2010Voronoi, GOORAN2015High}，该方法预先准备抖动矩阵（DitherArray），
+在线处理时将图像切分成与抖动矩阵同等大小的块，逐像素进行阈值对比，确定半色调图像对应位置的像素值。
+由于各像素处理相互独立，该方法并行性高，计算简单高效，无论是 ASIC 还是 CPU 都能快速实现。
+但因未考虑像素间关系，生成的半色调图像质量相对有限，在对图像质量要求不高的场景中应用广泛。
+现有相关研究主要聚焦于抖动矩阵的生成优化，以提升图像质量。
+
+\subsection{邻域过程类方法}
+    误差扩散法（ErrorDiffusion）\cite{ULICHNEY1988Dithering, 周研2011数字半色调处理的并行误差扩散算法研究, FLOYD1976An, METAXAS1998Optimal, OSTROMOUKHOV2001A, LI2004Tone, CHANG2009Structure, LI2010Contrast, 柳凌岳2014基于误差扩散的高效高质量半色调技术研究, HU2016Simple, MAO20184, KIYOTOMO2019Appearance}是邻域过程类方法的主要代表，其核心原则是保证半色调处理后的图像在局部灰度上与原连续调图像一致。
+算法按特定路径遍历像素，将像素灰度值与阈值比较进行二值化，再将量化误差扩散到周围未量化的像素上。
+相较于有序抖动法，误差扩散法生成的图像质量更优，但在某些灰度值下会出现明显人工痕迹（Artifacts），且像素处理间的依赖性限制了并行性，影响计算效率。
+后续研究通过优化扩散矩阵、调整处理顺序等方式，试图改善图像质量和并行计算能力。
+
+\subsection{迭代过程类方法}
+    基于搜索的半色调处理方法\cite{ULICHNEY1988Dithering, 周研2011数字半色调处理的并行误差扩散算法研究, FLOYD1976An, METAXAS1998Optimal, OSTROMOUKHOV2001A, LI2004Tone, CHANG2009Structure, LI2010Contrast, HU2016Simple, MAO20184, KIYOTOMO2019Appearance}将该问题视为数学优化问题，通过建模人类视觉系统，定义半色调图像与原连续调图像的相似度数学表达式，
+并尝试最大化该相似度。由于该优化问题属于大规模 0-1 整数非线性规划问题（Large-ScaleZero-OneIntegerNonlinear Programming），
+无法在多项式时间内获得最优解\cite{BURER2012Non}，现有方法多基于启发式策略进行迭代搜索优化，如局部搜索\cite{ANALOUI1992Model}、模拟退火\cite{PANG2008Structure}、粒子群优化\cite{CHATTERJEE2012Towards}等。
+这类方法能生成质量更优的半色调图像，但计算复杂度极高，难以在嵌入式打印主控芯片上实现实时计算，多用于离线场景。
+
+\section{基于深度学习的半色调处理方法}
+    随着深度学习在计算机视觉领域的蓬勃发展，其在半色调处理领域的应用逐渐受到关注\cite{KRIZHEVSKY2012ImageNet}。
+与传统方法不同，基于深度学习的半色调处理尝试学习参数化的神经网络模型，直接将连续调图像映射为半色调图像，为解决传统方法的痛点提供了新途径\cite{KIM2018Deep, GUO2020H, XIA2021Deep, BALUJA2022A, CHOI2022Mimicking, LAU2023Taming}。
+
+\subsection{深度学习在半色调处理中的应用基础}
+    深度学习在低层次视觉任务中的成功，为半色调处理技术发展带来启示\cite{DONG2016Image, LEDIG2017Photo}。
+例如，超分辨率问题中，CNN、GAN 等模型的应用取得了远超传统方法的效果\cite{DONG2016Image, LEDIG2017Photo}。
+在半色调处理领域，部分研究已成功将深度学习应用于逆半色调处理，即从半色调图像还原连续调图像\cite{KIM2018Deep, GAO2019Deep, XIA2019Deep, SON2020Inverse, 李梅2022面向多类型半色调图像的逆半色调深度学习方法研究, JIANG2022Conditional, CHOI2023Descreening}。
+直接使用神经网络实现半色调图像生成的工作虽相对较少，但已开展初步探索，这类方法被称为深度半色调处理，通常采用全卷积神经网络适应任意大小的输入图像\cite{KIM2018Deep, GUO2020H, XIA2021Deep, BALUJA2022A, CHOI2022Mimicking, LAU2023Taming}。
+
+\subsubsection{学习范式与模型优化}
+    现有深度半色调处理工作尝试了多种学习范式，部分工作\cite{KIM2018Deep, GAO2019Deep, CHOI2022Mimicking}将其视为图像到图像的翻译问题\cite{ISOLA2017Image}，利用生成对抗网络\cite{KIM2018Deep, GAO2019Deep, CHOI2022Mimicking}或自回归模型（Autoregressive Models）\cite{CHOI2022Mimicking}等生成模型学习数据分布。
+也有工作\cite{XIA2021Deep, BALUJA2022A, LAU2023Taming}通过自编码器结构（Auto-Encoder）生成可逆（Reversible）的半色调图像。
+面对二值化操作截断梯度反向传播的问题，相关研究采用直通估计器（Straight-ThroughEstimator，STE）\cite{BENGIO2013Estimating}等方法来
+从解码器回传梯度到编码器。然而，这些方法在优化目标适配性、模型针对性等方面仍存在不足。
+
+\subsubsection{网络模型设计}
+    现有深度半色调处理多采用通用二维卷积神经网络模型（如 UNet\cite{RONNEBERGER2015U-Net}），但这类模型未充分考虑半色调图像的特性\cite{XIA2021Deep}。
+传统误差扩散法\cite{FLOYD1976An}仅需少量参数和计算即可生成一定质量的半色调图像，其核心在于把握了半色调处理的关键特征。
+而通用 CNN 模型缺乏对这类特征的利用，导致参数量和计算量偏大，难以适配嵌入式硬件的资源约束。
+
+\subsubsection{调度优化策略}
+    使用神经网络处理大尺寸打印图像时，需将激活值切分成小块暂存至片外，引发大量片外访存请求，易与芯片其他组件产生带宽竞争\cite{MEI2023DeFiNES}。
+现有调度优化研究主要分为静态调度和动态调度两类，静态调度通过离线搜索或启发式规则优化映射方案\cite{KWON2019Understanding, MEI2021ZigZag, HEGDE2021Mind, HUANG2021CoSA, KAO2022Demystifying, MEI2023DeFiNES}，
+动态调度则针对运行时的动态变化（如输入尺寸、资源竞争）调整策略 \cite{SHEN2021Nimble, ZHENG2022DietCode, MU2023HaoTuner, MA2022AutoByte, OH2021Layerweaver, LIU2022VELTAIR, ZHAO2022Aaron, GAO2023Layer-Puzzle, KIM2023MoCA}，但针对半色调处理场景的专用调度方案仍有待完善。
+
+\subsection{相关数据集与评估指标}
+    目前，半色调处理领域的数据集多为通过传统半色调处理算法生成的图像数据集，用于训练深度学习模型\cite{KIM2018Deep, GUO2020H, CHOI2022Mimicking}。
+评估指标方面，除了传统的峰值信噪比（PSNR）、结构相似度（SSIM）等\cite{WANG2004Image}，针对半色调图像的特性，
+研究人员还关注蓝噪声特性、各向异性等指标\cite{LAU2008Modern, ULICHNEY1988Dithering}。部分研究指出了现有评估指标的缺陷，并尝试提出改进方案，以更准确地评价半色调图像质量\cite{XIA2021Deep}。
+
+\section{研究现状}
+    当前，半色调处理技术的研究呈现出从传统方法向深度学习方法过渡的趋势\cite{KIM2018Deep, GUO2020H, XIA2021Deep, BALUJA2022A, CHOI2022Mimicking, LAU2023Taming}。
+传统方法虽在特定场景下仍有应用，但在图像质量与计算效率的均衡上存在局限；深度学习方法为解决这些局限提供了新的技术路径，
+在学习范式、模型结构、调度策略等方面取得了一定突破\cite{KIM2018Deep, XIA2021Deep, CHOI2022Mimicking}。
+
+\section{总结与展望}
+    半色调处理技术经历了从传统方法到深度学习方法的发展历程，传统方法各有优劣，而深度学习方法为该领域带来了新的发展机遇，在图像质量和处理效率方面展现出巨大潜力\cite{KRIZHEVSKY2012ImageNet, DONG2016Image, LEDIG2017Photo, KIM2018Deep}。
+现有基于深度学习的研究在学习范式、网络模型、调度策略等方面取得了一系列成果，但仍存在诸多待解决的问题。
+未来，半色调处理技术的研究可朝着以下方向发展：一是探索适用范围更广、解释性更强的深度半色调处理框架，
+将其拓展到彩色半色调、视频半色调等相关领域，并深入分析模型内部机制 \cite{AGAR2005Model-based, KAO2022Fast, KAO2023Hardware}；
+二是设计结构更高效、训练速度更快的半色调处理模型，结合半色调图像特性，优化网络架构，提升模型训练和推理效率；
+三是研发粒度更小、先验更丰富、多组件协同的调度算法，充分考虑系统中各组件的访存特征，进一步提升系统整体性能，推动深度半色调处理技术在实际场景中的广泛应用\cite{SEALS2023BandWatch}。
+
+\printbibliography[heading=bibintoc]
+
+\end{document}

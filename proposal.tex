@@ -10,7 +10,7 @@
 \crefrangelabelformat{figure}{#3#1#4 -- #5#2#6}
 \makeatletter
 
-\title{基于深度学习的高效半色调处理技术研究}
+\title{基于强化学习的图像半色调生成算法的研究}
 \addbibresource{sample.bib}
 
 \begin{document}
@@ -29,6 +29,13 @@
 该研究成果可直接应用于嵌入式打印主控芯片等资源受限设备，提升打印图像处理的实时性与成像效果，
 对推动数字印刷技术的智能化升级、降低硬件设计复杂度具有重要的实际应用价值；同时，针对半色调处理离散性特点的深度学习范式探索，
 也为底层图像处理领域的相关研究提供了新的理论参考\cite{XIA2021Deep}。
+
+    传统深度学习模型未针对半色调处理的离散特性与硬件约束定制，在打印主控芯片等嵌入式设备上运行时，存在片外访存量大、与其他组件资源竞争激烈等问题\cite{XIA2021Deep,LAU2023Taming,GOETSCHALCKX2023DepFiN}。
+本研究通过算法层、模型层、调度层的全栈优化，不仅解决了监督学习范式不适配\cite{DAHL2017Pixel,MENON2020PULSE,LACHAUX2020Target}、
+网络结构冗余\cite{LI2022EfficientFormer,XU2022EtinyNet}等核心瓶颈，更实现了模型与硬件资源的高效协同——轻量级模型降低了硬件部署门槛\cite{LIN2020MCUNet,ZHANG2022Advancing}，
+动态调度算法缓解了片外访存竞争\cite{MEI2023DeFiNES,KIM2023MoCA}，为深度学习在资源受限嵌入式图像处理场景的落地提供了完整方案。
+此外，研究中提出的深度强化学习离散优化框架\cite{FURUTA2020PixelRL,MNIH2013Playing}、误差反馈驱动网络设计\cite{LI2004Tone,FUNG2016Tone-dependent}等思路，
+也为解决其他底层图像处理中离散性与高效性的矛盾提供了可迁移路径，具有重要学术价值与实践意义。
 
 \subsection{可行性分析}
     理论可行性：半色调处理技术已形成有序抖动法、误差扩散法、搜索算法等传统技术体系\cite{CHOI2022Mimicking}，
@@ -66,10 +73,27 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
 强化学习的离散动作输出特性与半色调的二值化要求高度契合\cite{SUTTON2018Reinforcement}，为解决监督学习与无监督学习的适配性问题提供了新途径，
 但目前尚未形成成熟的深度强化学习半色调处理框架\cite{XIA2021Deep}。
 
-\subsection{半色调评价指标与蓝噪声优化研究进展}
+    当前像素级强化学习方法仍面临两大核心挑战：一是训练效率与稳定性问题，多轮迭代优化模式导致计算成本过高\cite{FURUTA2020PixelRL}，
+且简单像素损失导向的奖励函数易引发优化偏差，使模型生成局部伪影\cite{FURUTA2020PixelRL,ZHANG2021R3L}；二是视觉感知适配不足，
+现有框架未充分融合人类视觉系统（HVS）特性\cite{NÄSÄNEN1984Visibility,GONZÁLEZ2006Alpha,KIM2002Impact}，
+难以精准捕捉半色调处理所需的细粒度质量需求。此外，半色调处理的 “一对多映射” 特性\cite{XIA2021Deep,ALLEBACH2001DBS,DAHL2017Pixel,MENON2020PULSE,LACHAUX2020Target}，
+要求强化学习框架具备更强的无监督泛化能力，而现有方法在缺乏高质量标签时的优化效果仍有提升空间，例如基于深度 Q 网络的视觉优化方法\cite{MNIH2013Playing} 
+虽验证了强化学习的动态决策优势，但未适配半色调的离散二值化\cite{XIA2021Deep,LAU2023Taming}与蓝噪声特性\cite{ULICHNEY1988Dithering,XIA2021Deep,FUNG2016Tone-dependent,FUNG2013Tone}，
+这些问题共同制约了强化学习在半色调领域的落地应用。
+
+    \subsection{半色调评价指标与蓝噪声优化研究进展}
     现有半色调评价指标中，SSIM 指标在优化时会导致图像平坦区域出现空洞现象\cite{WANG2004Image}，需通过对比度加权等方式修正。
 蓝噪声特性作为半色调图像的关键要求，现有方法多通过频域滤波或损失函数惩罚低频分量实现\cite{ULICHNEY1988Dithering}，
 但如何在强化学习框架中高效融合蓝噪声约束仍需探索\cite{XIA2019Deep}。
+
+    从技术发展来看，评价指标正朝着 “细粒度感知 + 多策略融合” 方向演进，例如 Chen 等人提出通过分区模拟人眼远距离视物模糊状态改进 SSIM\cite{CHEN2023Overcoming}，
+使评价结果更符合主观感受，但分区大小会导致图像变形，实际适用性受限；另有研究指出传统 MSE、PSNR 等指标忽略半色调图像的局部结构特征与视觉关联性，
+与 HVS 低通特性适配性差\cite{WANG2004Image,KIM2002Impact}，这类指标在强化学习奖励函数中的高效适配仍需探索。
+蓝噪声优化方面，传统方法如色调依赖误差扩散算法\cite{FUNG2016Tone-dependent}，虽能基于更新后的蓝噪声模型优化频域各向异性，但难以兼顾实时性；
+深度学习方法则缺乏对频域各向异性的针对性抑制\cite{XIA2021Deep}，且离散二值化操作易导致梯度传播断裂\cite{LAU2023Taming}。
+此外，蓝噪声掩码技术通过像素级对比生成高频特性半色调图像\cite{GARATEGUY2010Voronoi}，但其周期性约束与强化学习的无监督泛化需求存在冲突\cite{DAHL2017Pixel,MENON2020PULSE}，
+如何将蓝噪声的核心量化指标（如 RAPSD、各向异性值）转化为强化学习可高效优化的频域约束\cite{ULICHNEY1988Dithering,FUNG2013Tone}，
+同时实现评价指标与优化目标的协同统一，是当前研究的关键突破口。
 
 \section{研究的基本内容与拟解决的主要问题}
 
@@ -87,15 +111,10 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
 设计低方差的策略梯度估计器，优化学习目标\cite{XIA2021Deep}；提出频域上的各向异性抑制损失函数，保证半色调图像的蓝噪声特性\cite{WANG2004Image}；
 修正现有结构相似度（SSIM）指标，提出对比度加权的结构相似度（CSSIM）\cite{KINGMA2015Adam}，优化图像结构细节保留效果。
 
-    \item 网络模型与训练策略优化\par
-
-    采用轻量级全卷积网络作为策略网络，输入连续调图像与高斯噪声图以生成非周期半色调图案\cite{XIA2021Deep}；
-设计包含 MSE、CSSIM 的复合奖励函数，兼顾色调一致性与结构细节\cite{WANG2004Image}；优化训练超参数（学习率、折扣因子等），提升框架收敛速度\cite{KINGMA2015Adam}。
-
-    \item 模型训练与验证\par
-
-    在 GPU 上完成模型训练，对比传统方法与现有深度学习方法的图像质量（PSNR、SSIM/CSSIM、蓝噪声特性）与计算效率\cite{ANALOUI1992Model}；
-分析梯度估计器、损失函数等组件的有效性，验证框架在多色调处理等场景的可拓展性\cite{XIA2021Deep}。
+    \item 模型训练、验证与拓展性分析\par
+    采用轻量级全卷积网络作为策略网络，输入连续调图像与高斯噪声图生成非周期半色调图案\cite{XIA2021Deep}，优化学习率等超参数提升收敛速度\cite{KINGMA2015Adam}；
+在 GPU 上完成训练后，对比传统方法与现有深度学习方法的图像质量（PSNR、SSIM/CSSIM、蓝噪声特性）与计算效率\cite{ANALOUI1992Model}；
+分析梯度估计器、损失函数等组件有效性，验证框架在多色调处理等场景的可拓展性\cite{XIA2021Deep}。
 
 \end{enumerate}
 
@@ -107,15 +126,9 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
     传统学习范式难以处理二值离散特性，导致模型训练困难。通过多智能体强化学习建模，将像素二值化视为智能体离散动作，
 利用策略梯度直接优化目标指标期望\cite{SUTTON2018Reinforcement}，解决梯度消失与范式不匹配问题。
 
-    \item 策略梯度估计方差与训练稳定性问题\par
-
-    直接应用 REINFORCE 算法会导致梯度估计方差过大。引入反事实基准与局部期望梯度估计器，
-利用半色调指标的局部性特点，降低方差并提升训练稳定性\cite{FOERSTER2018Counterfactual}。
-
-    \item 蓝噪声特性与结构细节协同优化问题\par
-    
-    现有方法难以同时保证蓝噪声特性（频域各向同性）与结构细节完整性。
-通过频域各向异性抑制损失函数优化蓝噪声特性，结合 CSSIM 指标增强结构细节保留\cite{XIA2021Deep}。
+    \item 训练稳定性与蓝噪声-结构细节协同优化问题\par
+    直接应用REINFORCE算法存在梯度估计方差过大的问题，且现有方法难以兼顾蓝噪声特性与结构细节。引入反事实基准与局部期望梯度估计器\cite{FOERSTER2018Counterfactual}，
+利用半色调指标局部性降低方差；通过频域各向异性抑制损失函数优化蓝噪声特性，结合CSSIM指标增强结构细节保留\cite{XIA2021Deep}，实现双目标协同优化。
 
     \item 模型计算效率问题\par
 
@@ -132,8 +145,8 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
 通过迭代训练优化模型参数，最终在硬件平台上完成模型测试与验证，形成完整的技术流程。总体流程图如图 1 所示。
 \begin{figure}
     \centering
-    \includegraphics[width=0.9\linewidth]{graphics/总体流程图.png}
-    \caption{}
+    \includegraphics[width=0.5\linewidth]{graphics/总体流程图.png}
+    \caption{基于深度学习的高效半色调图像处理总体流程图}
 \end{figure}
 
 \subsection{研究思路}
@@ -161,13 +174,14 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
 \text{PSNR} = 10 \cdot \log_{10} \left( \frac{\text{MAX}_I^2}{\text{MSE}} \right)
 \end{equation}
 
-    结构相似度指标：
     % SSIM公式
+    结构相似度：
 \begin{equation}
-\text{SSIM}(h, c) = l(h, c) \cdot c(h, c) \cdot s(h, c)
+\text{SSIM}(x,y) = \frac{2\mu_x\mu_y + C_1}{\mu_x^2 + \mu_y^2 + C_1} 
+\cdot \frac{2\sigma_x\sigma_y + C_2}{\sigma_x^2 + \sigma_y^2 + C_2}
+\cdot \frac{\sigma_{xy} + C_3}{\sigma_x\sigma_y + C_3}
 \end{equation}
-其中，$l(h,c)$、$c(h,c)$、$s(h,c)$ 分别代表亮度、对比度和结构对比系数，综合评估图像的结构相似性。
-
+其中，$\mu_x$、$\mu_y$ 分别为图像 $x$、$y$ 的像素均值，$\sigma_x$、$\sigma_y$ 分别为图像 $x$、$y$ 的像素标准差，$\sigma_{xy}$ 为图像 $x$、$y$ 的像素协方差；$C_1$、$C_2$、$C_3$ 为避免分母为零的常数项。该公式通过亮度项 $l(x,y)$、对比度项 $c(x,y)$、结构项 $s(x,y)$ 三个维度综合评估图像的结构相似性，若对应到半色调图像 $h$ 和连续调图像 $c$，则 $l(h,c)$、$c(h,c)$、$s(h,c)$ 分别代表两者的亮度、对比度和结构对比系数。
     \item {\zihao{-4}\heiti 半色调处理技术与深度强化学习理论研究}\par
 
     系统梳理现有半色调处理技术，包括有序抖动法、误差扩散法、搜索算法及现有深度学习方法\cite{LAU2008Modern, ANALOUI1992Model, XIA2021Deep}，分析各类方法的优缺点：
@@ -177,24 +191,29 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
     深入研究深度强化学习核心理论，包括马尔科夫决策过程、策略梯度算法、多智能体强化学习等\cite{SUTTON2018Reinforcement,SUTTON1999Policy}。
 重点分析强化学习在离散动作输出、目标函数直接优化等方面的优势，解决半色调处理中离散像素二值化导致的梯度消失问题，为后续模型设计提供理论支撑\cite{FURUTA2020PixelRL}。
 
-    \item {\zihao{-4}\heiti 基于深度强化学习的半色调处理框架设计}\par
+    进一步探究半色调质量评价与模型优化的协同机制，梳理基于人类视觉系统（HVS）的噪声评估方法\cite{KIM2002Impact}，
+明确蓝噪声特性在频域各向异性抑制、高频分布优化中的核心要求\cite{XIA2021Deep,FUNG2016Tone-dependent}；
+结合轻量级网络设计理念与强化学习序贯优化优势，分析如何在保证蓝噪声特性与结构细节的前提下，降低模型参数量与计算复杂度，
+为全栈优化方案提供理论与技术参考
 
-    \begin{enumerate}[label=\textcircled{\arabic*}]
+    \item {\zihao{-4}\heiti 基于深度强化学习的半色调处理框架设计}
+
+    \begin{enumerate}[label=\textcircled{\arabic*}, left=1em, listparindent=\parindent]
         \item 问题建模\par
 
-        将半色调处理建模为多智能体强化学习问题，每个像素位置对应一个虚拟智能体，智能体的动作空间为 {0,1}（分别对应黑色、白色像素）\cite{XIA2021Deep}。
+       将半色调处理建模为多智能体强化学习问题，每个像素位置对应一个虚拟智能体，智能体的动作空间为 {0,1}（分别对应黑色、白色像素）\cite{XIA2021Deep}。
     所有智能体共享同一个卷积神经网络（CNN）作为策略网络，确保模型参数量可控，同时保证并行处理能力\cite{FURUTA2020PixelRL}。
         
     环境状态定义为连续调图像与高斯噪声图的拼接，即
     \begin{equation} 
-    s = \text{Concatenate}(c, z) 
+    s = \text{Concatenate}(c, z),
     \end{equation}
-    ，其中 z 为高斯噪声图，用于解耦各输出离散像素，
+    其中 z 为高斯噪声图，用于解耦各输出离散像素，
     使智能体能够条件独立地进行决策\cite{XIA2021Deep}。奖励函数设计结合半色调图像质量指标，定义为
     \begin{equation}
-    R(h, c) = -\text{MSE}\left(\text{HVS}(h), \text{HVS}(c)\right) + w_s \cdot \text{CSSIM}(h, c)
+    R(h, c) = -\text{MSE}\left(\text{HVS}(h), \text{HVS}(c)\right) + w_s \cdot \text{CSSIM}(h, c),
     \end{equation}
-    ，其中 HVS 为人类视觉系统模型，CSSIM 为对比度加权的结构相似度，兼顾色调一致性与结构相似性\cite{NÄSÄNEN1984Visibility, KIM2002Impact}。
+    其中 HVS 为人类视觉系统模型，CSSIM 为对比度加权的结构相似度，兼顾色调一致性与结构相似性\cite{NÄSÄNEN1984Visibility, KIM2002Impact}。
     
         \item 策略梯度估计器设计\par
 
@@ -226,12 +245,19 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
         
         选用轻量级全卷积 ResNet 作为策略网络的主干结构，包含 16 个残差块、33 个卷积层，每个卷积核设置 32 个通道，确保模型在保持高性能的同时，
     具备高效的推理速度\cite{HE2016Deep, XIA2021Deep}。网络末端设置 Sigmoid 层，输出每个智能体选择 “白色动作” 的概率，满足伯努利分布要求\cite{XIA2021Deep}。
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{graphics/网络结构.png}
+        \caption{网络结构}
+    \end{figure}
+
+
 
     \end{enumerate}
 
     \item {\zihao{-4}\heiti 模型训练与优化}\par
     
-    采用 Adam 优化器对模型进行训练，学习率按余弦退火方案从 3e-4 下降至 1e-5\cite{LOSHCHILOV2017SGDR}。训练过程中，Mini-batch 大小设置为 64，通过随机裁剪图像块进行训练，节省显存资源\cite{XIA2021Deep}。
+    采用 Adam 优化器对模型进行训练，学习率按余弦退火方案从 $3 \times 10^{-4}$ 下降至 $1 \times 10^{-5}$\cite{LOSHCHILOV2017SGDR}。训练过程中，Mini-batch 大小设置为 64，通过随机裁剪图像块进行训练，节省显存资源\cite{XIA2021Deep}。
     
     训练过程分为两个阶段：第一阶段优化策略梯度与各向异性抑制损失函数，确保模型生成具备蓝噪声特性的半色调图像；
 第二阶段引入 CSSIM 指标优化，进一步提升图像的结构细节保留能力\cite{XIA2021Deep}。训练过程中实时监控 PSNR、SSIM、CSSIM 等指标，
@@ -246,7 +272,7 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
 \end{enumerate}
 
 \subsection{预期研究成果}
-    \begin{enumerate}
+    \begin{enumerate}[left=1em]
         \item 提出一套基于深度强化学习的半色调处理优化框架，解决现有深度学习方法在半色调处理中训练范式不清晰、离散动作优化困难等问题，实现对蓝噪声半色调图像的高效生成。
         \item 设计的轻量级模型在保持高质量图像输出的同时，处理速度达到现有结构感知半色调处理算法（如 SAH）的 15 倍以上，参数量控制在 300K 以内，满足嵌入式设备实时处理需求\cite{XIA2021Deep, PANG2008Structure}。
         \item 模型生成的半色调图像在 PSNR（Näsänen HVS 模型）指标上不低于 31.6dB，CSSIM 指标不低于 0.923，具备良好的蓝噪声特性与结构细节保留能力，各向异性抑制在 - 10dB 附近\cite{XIA2021Deep, NÄSÄNEN1984Visibility}。
@@ -255,7 +281,7 @@ PixelRL 框架提出在每个像素位置设置虚拟智能体，共享全卷积
 
 \section{研究工作计划}
 
-\begin{table}[ht]
+\begin{table}[H]
     \centering
     \label{tab:project_schedule}
     \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}

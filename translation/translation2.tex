@@ -1,4 +1,4 @@
-\documentclass[translation]{zstucs-graduation-project}
+\documentclass[translation]{../zstucs-graduation-project}
 
 \usepackage{graphicx}
 \usepackage{minted}
@@ -31,7 +31,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig1.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig1.png}
     \caption{（a）误差扩散算法框图；（b）弗洛伊德-斯坦伯格滤波核H}
 \end{figure}
 
@@ -43,7 +43,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig2.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig2.png}
     \caption{分配给线程块的图像条带及条带内不同扫描线中的独立像素}
 \end{figure}
 
@@ -56,7 +56,7 @@ GPU可支持高度并发执行，因此不宜在单个像素处理层面挖掘�
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig3.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig3.png}
     \caption{线程块间的误差值交换}
 \end{figure}
 
@@ -69,7 +69,7 @@ GPU可支持高度并发执行，因此不宜在单个像素处理层面挖掘�
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig4.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig4.png}
     \caption{线程块中的像素与计算得到的误差值，以及共享内存数组的内容}
 \end{figure}
 
@@ -91,13 +91,13 @@ GPU可支持高度并发执行，因此不宜在单个像素处理层面挖掘�
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig5.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig5.png}
     \caption{线程块间的同步机制}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig6.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig6.png}
     \caption{不同线程块大小和图像尺寸下的性能表现}
 \end{figure}
 

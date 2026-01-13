@@ -42,7 +42,7 @@ General purpose graphics processing units, such as NVIDIA GTX 285, can accelerat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig1.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig1.png}
     \caption{ (a) Block diagram of the error diffusion algorithm. (b) Floyd-Steinberg filter kernel, $H$}
 \end{figure}
 
@@ -54,7 +54,7 @@ Section 2 shows the GPU based parallelization and implementation techniques of t
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig2.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig2.png}
     \caption{A strip of an image assigned to a thread-block and independent pixels in different scan-lines of the strip}
 \end{figure}
 
@@ -67,7 +67,7 @@ We employ the modified version of the skewed scan-line method [2]. In the error 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig3.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig3.png}
     \caption{Exchange of the error values between thread-blocks}
 \end{figure}
 
@@ -80,7 +80,7 @@ In the GPU based implementation, a thread loads its own input pixels from the gl
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig4.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig4.png}
     \caption{Pixels and computed error values in a thread-block and contents of the array in the shared memory}
 \end{figure}
 
@@ -95,13 +95,13 @@ In the experiment, we have a few parameters that would have influence on the exe
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig5.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig5.png}
     \caption{Synchronization between inter-thread-block}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/original2/fig6.png}
+    \includegraphics[width=0.5\textwidth]{../graphics/original2/fig6.png}
     \caption{Performance according to the thread-block size and image size}
 \end{figure}
 
